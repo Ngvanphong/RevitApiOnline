@@ -10,6 +10,5 @@ namespace RevitApiOnline.Shared.Interfaces
     public interface ICurveUtilities
     {
         List<Curve> GetCurvesFromDetailCurve(Document doc, ICollection<ElementId> ids);
-
     }
 }

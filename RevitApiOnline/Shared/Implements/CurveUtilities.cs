@@ -9,7 +9,7 @@ using System.Windows.Controls;
 
 namespace RevitApiOnline.Shared.Implements
 {
-    public class CurveUttilities : ICurveUtilities
+    public class CurveUtilities : ICurveUtilities
     {
         public List<Curve> GetCurvesFromDetailCurve(Document doc,ICollection<ElementId> ids)
         {

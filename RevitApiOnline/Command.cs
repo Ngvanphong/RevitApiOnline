@@ -18,7 +18,7 @@ namespace RevitApiOnline
             ICollection<ElementId> ids= uiDoc.Selection.GetElementIds();
 
             // implement interface;
-            ICurveUtilities curveUtilities = new CurveUttilities();
+            ICurveUtilities curveUtilities = new CurveUtilities();
             List<Curve> listCurveWall = curveUtilities.GetCurvesFromDetailCurve(doc, ids);
 
             View view = doc.ActiveView;
