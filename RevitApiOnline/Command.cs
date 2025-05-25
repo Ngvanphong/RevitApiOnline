@@ -3,6 +3,8 @@ using Autodesk.Revit.UI;
 using Autodesk.Revit.DB;
 using System.Collections.Generic;
 using System.Windows.Media.Animation;
+using RevitApiOnline.Shared.Interfaces;
+using RevitApiOnline.Shared.Implements;
 
 namespace RevitApiOnline
 {
@@ -14,18 +16,10 @@ namespace RevitApiOnline
             UIDocument uiDoc = commandData.Application.ActiveUIDocument;
             Document doc = uiDoc.Document;
             ICollection<ElementId> ids= uiDoc.Selection.GetElementIds();
-            List<Curve> listCurveWall= new List<Curve>();
-            foreach(ElementId id in ids)
-            {
-                Element element= doc.GetElement(id);
-                bool isDetail = element is DetailCurve;
-                if (isDetail)
-                {
-                    DetailCurve detailCurve= element as DetailCurve;
-                    Curve curve= detailCurve.GeometryCurve;
-                    listCurveWall.Add(curve);
-                }
-            }
+
+            // implement interface;
+            ICurveUtilities curveUtilities = new CurveUttilities();
+            List<Curve> listCurveWall = curveUtilities.GetCurvesFromDetailCurve(doc, ids);
 
             View view = doc.ActiveView;
             Level level= view.GenLevel;
