@@ -10,7 +10,7 @@ namespace RevitApiOnline
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            TaskDialog.Show("Succes", "This is First Addin");
+            TaskDialog.Show("Success", "This is First Addin");
             //winform.TaskDialog()
 
             return Result.Succeeded;
