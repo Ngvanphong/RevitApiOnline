@@ -5,6 +5,12 @@ using System.Collections.Generic;
 using System.Windows.Media.Animation;
 using RevitApiOnline.Shared.Interfaces;
 using RevitApiOnline.Shared.Implements;
+using Autodesk.Revit.DB.Mechanical;
+using Autodesk.Revit.DB.Plumbing;
+using Autodesk.Revit.DB.Structure;
+using Autodesk.Revit.UI.Selection;
+using System.DirectoryServices.ActiveDirectory;
+using System.Linq;
 
 namespace RevitApiOnline
 {
@@ -15,34 +21,68 @@ namespace RevitApiOnline
         {
             UIDocument uiDoc = commandData.Application.ActiveUIDocument;
             Document doc = uiDoc.Document;
-            ICollection<ElementId> ids= uiDoc.Selection.GetElementIds();
 
-            // implement interface;
-            ICurveUtilities curveUtilities = new CurveUtilities();
-            List<Curve> listCurveWall = curveUtilities.GetCurvesFromDetailCurve(doc, ids);
+            // chon truoc
+            IEnumerable<ElementId> selectedIds = uiDoc.Selection.GetElementIds();
 
-            View view = doc.ActiveView;
-            Level level= view.GenLevel;
+            //
+            //pick point
+            XYZ point1 = uiDoc.Selection.PickPoint("Pick a point");
+            XYZ point2 = uiDoc.Selection.PickPoint("Pick a point");
 
-            Parameter levelParameter = view.get_Parameter(BuiltInParameter.PLAN_VIEW_LEVEL);
-            string levelName = levelParameter.AsString();
-            
-            using(Transaction t= new Transaction(doc, "CreateWall"))
+            // pick face
+            Reference faceRef = uiDoc.Selection.PickObject(Autodesk.Revit.UI.Selection.ObjectType.Face, "Pick face");
+            Element element = doc.GetElement(faceRef);
+            Face face = element.GetGeometryObjectFromReference(faceRef) as Face;
+
+            // pick object
+            //Reference objectRef = uiDoc.Selection.PickObject(Autodesk.Revit.UI.Selection.ObjectType.Element, "Select Element");
+
+            Reference objectRef = uiDoc.Selection.PickObject(ObjectType.Element, new WallSelectionFilter(), "Pick a wall");
+            Element selectedElemenet = doc.GetElement(objectRef);
+
+            IList<Reference> objectRefs = uiDoc.Selection.PickObjects(ObjectType.Element, new WallSelectionFilter(), "Pick Wall");
+
+            List<Wall> listWall = new List<Wall>();
+            foreach (Reference refItem in objectRefs)
             {
-                t.Start();
-                foreach(Curve curve in listCurveWall)
+                Wall wallItem = doc.GetElement(refItem) as Wall;
+                if (wallItem != null)
                 {
-                   Wall wall= Wall.Create(doc, curve, level.Id, false);
+                    listWall.Add(wallItem);
                 }
-                t.Commit();
             }
-            
+
+            // pick rectangle
+            IList<Element> listWalls= uiDoc.Selection.PickElementsByRectangle(new WallSelectionFilter(), "Pick walls");
+
+            PickedBox pickedBox = uiDoc.Selection.PickBox(PickBoxStyle.Directional, "Pick Box");
+            XYZ min = pickedBox.Min;
+            XYZ max = pickedBox.Max;
 
 
-            
-           
+
+
+
 
             return Result.Succeeded;
+        }
+    }
+
+    public class WallSelectionFilter : ISelectionFilter
+    {
+        public bool AllowElement(Element elem)
+        {
+            if(elem !=null && elem is Wall)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public bool AllowReference(Reference reference, XYZ position)
+        {
+            return true;
         }
     }
 }
