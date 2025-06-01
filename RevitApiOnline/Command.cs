@@ -13,6 +13,7 @@ using System.DirectoryServices.ActiveDirectory;
 using System.Linq;
 using System.Xml.Linq;
 using System;
+using System.Collections;
 
 namespace RevitApiOnline
 {
@@ -64,9 +65,15 @@ namespace RevitApiOnline
             Reference refFist = referenceArray.get_Item(0);
             Element element = doc.GetElement(refFist);
             Face face = element.GetGeometryObjectFromReference(refFist) as Face;
+            Plane plane;
             PlanarFace plannarFace = face as PlanarFace;
             XYZ originFace = plannarFace.Origin;
             XYZ normalFace = plannarFace.FaceNormal.Normalize();
+
+            Arc arc = null;
+            //arc.ComputeDerivatives(0.5, true);
+            
+            
 
             
 
@@ -79,21 +86,37 @@ namespace RevitApiOnline
             XYZ pointPutDim = uiDoc.Selection.PickPoint("Pick a point to put dim");
 
             Line linePutDim = Line.CreateUnbound(pointPutDim, normalFace);
+            Dimension dimension = null;
             using(Transaction t= new Transaction(doc, "CreateDim"))
             {
                 t.Start();
-                doc.Create.NewDimension(activeView, linePutDim, referenceArray);
+                dimension= doc.Create.NewDimension(activeView, linePutDim, referenceArray);
                 t.Commit();
             }
 
+            ReferenceArray arrayRefDim = dimension.References;
+            IEnumerator iterator = arrayRefDim.GetEnumerator();
+            iterator.Reset();
+            List<Reference> listRef = new List<Reference>();
+            while (iterator.MoveNext())
+            {
+                Reference refItem = iterator.Current as Reference;
+                listRef.Add(refItem);
+            }
+
+            IEnumerator segementIEnumberator = dimension.Segments.GetEnumerator();
+            segementIEnumberator.Reset();
+            while (segementIEnumberator.MoveNext())
+            {
+                DimensionSegment dimensionSegment = segementIEnumberator.Current as DimensionSegment;
+            }
+            
 
 
-            //doc.Create.NewDimension(activeView,)
 
 
 
-
-                return Result.Succeeded;
+             return Result.Succeeded;
         }
     }
 
