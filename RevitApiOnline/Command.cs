@@ -11,6 +11,8 @@ using Autodesk.Revit.DB.Structure;
 using Autodesk.Revit.UI.Selection;
 using System.DirectoryServices.ActiveDirectory;
 using System.Linq;
+using System.Xml.Linq;
+using System;
 
 namespace RevitApiOnline
 {
@@ -22,50 +24,76 @@ namespace RevitApiOnline
             UIDocument uiDoc = commandData.Application.ActiveUIDocument;
             Document doc = uiDoc.Document;
 
-            // chon truoc
-            IEnumerable<ElementId> selectedIds = uiDoc.Selection.GetElementIds();
-
-            //
-            //pick point
-            XYZ point1 = uiDoc.Selection.PickPoint("Pick a point");
-            XYZ point2 = uiDoc.Selection.PickPoint("Pick a point");
-
-            // pick face
-            Reference faceRef = uiDoc.Selection.PickObject(Autodesk.Revit.UI.Selection.ObjectType.Face, "Pick face");
-            Element element = doc.GetElement(faceRef);
-            Face face = element.GetGeometryObjectFromReference(faceRef) as Face;
-
-            // pick object
-            //Reference objectRef = uiDoc.Selection.PickObject(Autodesk.Revit.UI.Selection.ObjectType.Element, "Select Element");
-
-            Reference objectRef = uiDoc.Selection.PickObject(ObjectType.Element, new WallSelectionFilter(), "Pick a wall");
-            Element selectedElemenet = doc.GetElement(objectRef);
-
-            IList<Reference> objectRefs = uiDoc.Selection.PickObjects(ObjectType.Element, new WallSelectionFilter(), "Pick Wall");
-
+            IEnumerable<Reference> listRefWalls= uiDoc.Selection.PickObjects(ObjectType.Element, new WallSelectionFilter(), "Pick walls");
             List<Wall> listWall = new List<Wall>();
-            foreach (Reference refItem in objectRefs)
+            foreach(Reference refItem in listRefWalls)
             {
-                Wall wallItem = doc.GetElement(refItem) as Wall;
-                if (wallItem != null)
+                Wall wall = doc.GetElement(refItem) as Wall;
+                if(wall != null)
                 {
-                    listWall.Add(wallItem);
+                    listWall.Add(wall);
                 }
             }
 
-            // pick rectangle
-            IList<Element> listWalls= uiDoc.Selection.PickElementsByRectangle(new WallSelectionFilter(), "Pick walls");
+            //using (Transaction t = new Transaction(doc, "WallModify"))
+            //{
+            //    t.Start();
+            //    foreach(Wall item in listWall)
+            //    {
+            //        Parameter parameter = item.get_Parameter(BuiltInParameter.WALL_BASE_OFFSET);
+            //        if (parameter !=null && !parameter.IsReadOnly)
+            //        {
+            //            double offsetMili = -100;
+            //            double offsetInch = UnitUtils.ConvertToInternalUnits(offsetMili, UnitTypeId.Millimeters);
+            //            parameter.Set(offsetInch);
+            //        }
+            //    }
+            //    t.Commit();
+            //}
 
-            PickedBox pickedBox = uiDoc.Selection.PickBox(PickBoxStyle.Directional, "Pick Box");
-            XYZ min = pickedBox.Min;
-            XYZ max = pickedBox.Max;
+            View activeView = doc.ActiveView;
+            
+            ReferenceArray referenceArray = new ReferenceArray();
+            foreach(Wall wall in listWall)
+            {
+                Reference refExternal = HostObjectUtils.GetSideFaces(wall, ShellLayerType.Exterior).First();
+                Reference refInternal = HostObjectUtils.GetSideFaces(wall, ShellLayerType.Interior).First();
+                referenceArray.Append(refExternal);
+                referenceArray.Append(refInternal);
+            }
+            Reference refFist = referenceArray.get_Item(0);
+            Element element = doc.GetElement(refFist);
+            Face face = element.GetGeometryObjectFromReference(refFist) as Face;
+            PlanarFace plannarFace = face as PlanarFace;
+            XYZ originFace = plannarFace.Origin;
+            XYZ normalFace = plannarFace.FaceNormal.Normalize();
+
+            
+
+            //XYZ vectorA = null;
+            //XYZ vectorB = null;
+            //double dotProduct = vectorA.Normalize().DotProduct(vectorB.Normalize());
+            //XYZ vectorCross = vectorA.CrossProduct(vectorB);
+
+            // tao line dat dim
+            XYZ pointPutDim = uiDoc.Selection.PickPoint("Pick a point to put dim");
+
+            Line linePutDim = Line.CreateUnbound(pointPutDim, normalFace);
+            using(Transaction t= new Transaction(doc, "CreateDim"))
+            {
+                t.Start();
+                doc.Create.NewDimension(activeView, linePutDim, referenceArray);
+                t.Commit();
+            }
+
+
+
+            //doc.Create.NewDimension(activeView,)
 
 
 
 
-
-
-            return Result.Succeeded;
+                return Result.Succeeded;
         }
     }
 
