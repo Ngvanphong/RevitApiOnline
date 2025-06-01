@@ -72,10 +72,6 @@ namespace RevitApiOnline
 
             Arc arc = null;
             //arc.ComputeDerivatives(0.5, true);
-            
-            
-
-            
 
             //XYZ vectorA = null;
             //XYZ vectorB = null;
