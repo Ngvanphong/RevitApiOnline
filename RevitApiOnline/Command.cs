@@ -14,6 +14,8 @@ using System.Linq;
 using System.Xml.Linq;
 using System;
 using System.Collections;
+using System.Data.SqlTypes;
+using System.Windows.Media;
 
 namespace RevitApiOnline
 {
@@ -25,94 +27,79 @@ namespace RevitApiOnline
             UIDocument uiDoc = commandData.Application.ActiveUIDocument;
             Document doc = uiDoc.Document;
 
-            IEnumerable<Reference> listRefWalls= uiDoc.Selection.PickObjects(ObjectType.Element, new WallSelectionFilter(), "Pick walls");
-            List<Wall> listWall = new List<Wall>();
-            foreach(Reference refItem in listRefWalls)
+
+            // fitler 
+            List<Element> typeWall = new FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_Walls).
+                                                WhereElementIsElementType().ToElements().ToList();
+            List<Element> walls = new FilteredElementCollector(doc, doc.ActiveView.Id).OfCategory(BuiltInCategory.OST_Walls).
+                                                WhereElementIsNotElementType().ToElements().ToList();
+            //IEnumerable<Element> typeWall2 = new FilteredElementCollector(doc).OfClass(typeof(WallType));
+            //IEnumerable<Element> wall2 = new FilteredElementCollector(doc).OfClass(typeof(Wall));
+
+
+            string typeName = "Generic - 300mm";
+            long id = 1659761;
+            ElementId newId= new ElementId(id);
+            List<Element> wallsType300 = walls.Where(y => y.Name == typeName && y.Id.Value== id).ToList();
+
+            List<Element> wallsType3002 = walls.Where(x =>
             {
-                Wall wall = doc.GetElement(refItem) as Wall;
-                if(wall != null)
-                {
-                    listWall.Add(wall);
-                }
-            }
+                bool isTrueType = x.Name == typeName;
+                bool isTrueId = x.Id.Value == id;
+                return isTrueType && isTrueId;
+            }).ToList();
 
-            //using (Transaction t = new Transaction(doc, "WallModify"))
-            //{
-            //    t.Start();
-            //    foreach(Wall item in listWall)
-            //    {
-            //        Parameter parameter = item.get_Parameter(BuiltInParameter.WALL_BASE_OFFSET);
-            //        if (parameter !=null && !parameter.IsReadOnly)
-            //        {
-            //            double offsetMili = -100;
-            //            double offsetInch = UnitUtils.ConvertToInternalUnits(offsetMili, UnitTypeId.Millimeters);
-            //            parameter.Set(offsetInch);
-            //        }
-            //    }
-            //    t.Commit();
-            //}
-
-            View activeView = doc.ActiveView;
-            
-            ReferenceArray referenceArray = new ReferenceArray();
-            foreach(Wall wall in listWall)
+            Func<Element, bool> fucntionTypeId = (item) =>
             {
-                Reference refExternal = HostObjectUtils.GetSideFaces(wall, ShellLayerType.Exterior).First();
-                Reference refInternal = HostObjectUtils.GetSideFaces(wall, ShellLayerType.Interior).First();
-                referenceArray.Append(refExternal);
-                referenceArray.Append(refInternal);
-            }
-            Reference refFist = referenceArray.get_Item(0);
-            Element element = doc.GetElement(refFist);
-            Face face = element.GetGeometryObjectFromReference(refFist) as Face;
-            Plane plane;
-            PlanarFace plannarFace = face as PlanarFace;
-            XYZ originFace = plannarFace.Origin;
-            XYZ normalFace = plannarFace.FaceNormal.Normalize();
+                bool isTue = item.Name == typeName && item.Id.Value == id;
+                return isTue;
+            };
+            List<Element> wallsType3003 = walls.Where(fucntionTypeId).ToList();
 
-            Arc arc = null;
-            //arc.ComputeDerivatives(0.5, true);
+            List<Element> wallsType3004 = (from el in walls
+                                          where el.Name == typeName && el.Id.Value == id
+                                          select el).ToList();
 
-            //XYZ vectorA = null;
-            //XYZ vectorB = null;
-            //double dotProduct = vectorA.Normalize().DotProduct(vectorB.Normalize());
-            //XYZ vectorCross = vectorA.CrossProduct(vectorB);
 
-            // tao line dat dim
-            XYZ pointPutDim = uiDoc.Selection.PickPoint("Pick a point to put dim");
+            List<Wall> ofTypeWalls = walls.OfType<Wall>().ToList();
+             
+            Element elemetns;
+            var typeOd = typeof(Element);
 
-            Line linePutDim = Line.CreateUnbound(pointPutDim, normalFace);
-            Dimension dimension = null;
-            using(Transaction t= new Transaction(doc, "CreateDim"))
+            List<Element> listOrder = walls.OrderBy(x => x.Name).ThenByDescending(y=>y.Id.Value).ToList();
+            List<Element> listOrderDes = walls.OrderByDescending(x => x.Name).ToList();
+
+            Dictionary<long, Element> dictionaryElement = new Dictionary<long, Element>();
+            dictionaryElement.Add(1111, walls[0]);
+            dictionaryElement.Add(4444, walls[1]);
+            dictionaryElement.Add(444555, walls[1]);
+            Element wallKey11 = dictionaryElement[1111];
+
+            var groupTypeName = walls.GroupBy(x => x.Name).ToList();
+            Dictionary<string, List<Element>> resutlClass;
+            List<string> listNameWall = walls.Select(x => x.Name).ToList();
+            var listNameWall2 = walls.Select(x => new
             {
-                t.Start();
-                dimension= doc.Create.NewDimension(activeView, linePutDim, referenceArray);
-                t.Commit();
-            }
+                Id = x.Id,
+                Name = x.Name
+            }).ToList();
 
-            ReferenceArray arrayRefDim = dimension.References;
-            IEnumerator iterator = arrayRefDim.GetEnumerator();
-            iterator.Reset();
-            List<Reference> listRef = new List<Reference>();
-            while (iterator.MoveNext())
-            {
-                Reference refItem = iterator.Current as Reference;
-                listRef.Add(refItem);
-            }
+            bool isAlllTrue = walls.All(x => x.Name == typeName);
+            bool isAnyTrue = walls.Any(x => x.Name == typeName);
 
-            IEnumerator segementIEnumberator = dimension.Segments.GetEnumerator();
-            segementIEnumberator.Reset();
-            while (segementIEnumberator.MoveNext())
-            {
-                DimensionSegment dimensionSegment = segementIEnumberator.Current as DimensionSegment;
-            }
-            
+            List<Element> listContain = walls.Where(x => x.Name.Contains("Generic")).ToList();
+            int totalCount = listContain.Count;
+            Wall wall = null;
+            int index = walls.IndexOf(wall);
+            Element elementFind = walls.ElementAt(1);
+
+            Element findFist = walls.First(x => x.Name == typeName);
+            Element findFistDefault = walls.FirstOrDefault(x => x.Name == typeName);
+
+            bool isExisted = walls.Exists(x => x.Name == typeName);
 
 
-
-
-
-             return Result.Succeeded;
+            return Result.Succeeded;
         }
     }
 
