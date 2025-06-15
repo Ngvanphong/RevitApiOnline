@@ -29,104 +29,86 @@ namespace RevitApiOnline
             UIDocument uiDoc = commandData.Application.ActiveUIDocument;
             Document doc = uiDoc.Document;
 
-
-            // fitler 
-            List<Element> typeWall = new FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_Walls).
-                                                WhereElementIsElementType().ToElements().ToList();
-            List<Element> walls = new FilteredElementCollector(doc, doc.ActiveView.Id).OfCategory(BuiltInCategory.OST_Walls).
-                                                WhereElementIsNotElementType().ToElements().ToList();
-            //IEnumerable<Element> typeWall2 = new FilteredElementCollector(doc).OfClass(typeof(WallType));
-            //IEnumerable<Element> wall2 = new FilteredElementCollector(doc).OfClass(typeof(Wall));
+            double offset = -1500;
+            double offsetInch = UnitUtils.ConvertToInternalUnits(offset, UnitTypeId.Millimeters);
 
 
-            string typeName = "Generic - 300mm";
-            long id = 1659761;
-            ElementId newId= new ElementId(id);
-            List<Element> wallsType300 = walls.Where(y => y.Name == typeName && y.Id.Value== id).ToList();
+            FilteredElementCollector beamCollection = new FilteredElementCollector(doc, doc.ActiveView.Id)
+                                                       .OfCategory(BuiltInCategory.OST_StructuralColumns).WhereElementIsNotElementType();
 
-            List<Element> wallsType3002 = walls.Where(x =>
+            List<Element> listBeam1500 = beamCollection.Where(x =>
             {
-                bool isTrueType = x.Name == typeName;
-                bool isTrueId = x.Id.Value == id;
-                return isTrueType && isTrueId;
+                Parameter parameter = x.get_Parameter(BuiltInParameter.FAMILY_BASE_LEVEL_OFFSET_PARAM);
+                double offsetItem = parameter.AsDouble();
+                Parameter paraStyle = x.get_Parameter(BuiltInParameter.SLANTED_COLUMN_TYPE_PARAM);
+                int style = paraStyle.AsInteger();
+                return Math.Abs(offsetItem - offsetInch) < 0.0001 && style == 0;
             }).ToList();
 
-            Func<Element, bool> fucntionTypeId = (item) =>
+            // filter base offset;
+            ElementId paraOffsetId = new ElementId((long)BuiltInParameter.SCHEDULE_BASE_LEVEL_OFFSET_PARAM);
+            FilterRule doubleFilter = ParameterFilterRuleFactory.CreateEqualsRule(paraOffsetId, offsetInch, 0.0001);
+            ElementParameterFilter baseOffsetFitler = new ElementParameterFilter(doubleFilter);
+
+            ElementId parameterStyleId = new ElementId((long)BuiltInParameter.ALL_MODEL_TYPE_NAME);
+            FilterRule fiterRuleForStyle = ParameterFilterRuleFactory.CreateContainsRule(parameterStyleId, "356x368");
+            ElementParameterFilter styleFilter = new ElementParameterFilter(fiterRuleForStyle);
+
+            double valueVolumn = 0.1;
+            double valueVolumeInch = UnitUtils.ConvertToInternalUnits(valueVolumn, UnitTypeId.CubicMeters);
+            ElementId paraVolumeId = new ElementId((long)BuiltInParameter.HOST_VOLUME_COMPUTED);
+            FilterRule filterRuleVol = ParameterFilterRuleFactory.CreateGreaterRule(paraVolumeId, valueVolumeInch, 0.00001);
+            ElementParameterFilter volumeFilter = new ElementParameterFilter(filterRuleVol);
+
+            List<ElementFilter> listAndFilter = new List<ElementFilter> { baseOffsetFitler, styleFilter };
+            LogicalAndFilter logicalAndFilter = new LogicalAndFilter(listAndFilter);
+
+
+            List<ElementFilter> listOrFitler = new List<ElementFilter> { logicalAndFilter, volumeFilter };
+
+            LogicalOrFilter logicalOrFilter = new LogicalOrFilter(listOrFitler);
+
+            Category columnCategory = doc.Settings.Categories.get_Item(BuiltInCategory.OST_StructuralColumns);
+            List<ElementId> listCategoryIds = new List<ElementId> { columnCategory.Id };
+            ParameterFilterElement filter = null;
+            using (Transaction t = new Transaction(doc, "CreateFilter"))
             {
-                bool isTue = item.Name == typeName && item.Id.Value == id;
-                return isTue;
-            };
-            List<Element> wallsType3003 = walls.Where(fucntionTypeId).ToList();
-
-            List<Element> wallsType3004 = (from el in walls
-                                          where el.Name == typeName && el.Id.Value == id
-                                          select el).ToList();
-
-
-            List<Wall> ofTypeWalls = walls.OfType<Wall>().ToList();
-             
-            Element elemetns;
-            var typeOd = typeof(Element);
-
-            List<Element> listOrder = walls.OrderBy(x => x.Name).ThenByDescending(y=>y.Id.Value).ToList();
-            List<Element> listOrderDes = walls.OrderByDescending(x => x.Name).ToList();
-
-            Dictionary<long, Element> dictionaryElement = new Dictionary<long, Element>();
-            dictionaryElement.Add(1111, walls[0]);
-            dictionaryElement.Add(4444, walls[1]);
-            dictionaryElement.Add(444555, walls[1]);
-            Element wallKey11 = dictionaryElement[1111];
-            foreach(KeyValuePair<long, Element> pairItem in dictionaryElement)
-            {
-
+                t.Start();
+                filter = ParameterFilterElement.Create(doc, "Test1", listCategoryIds);
+                filter.SetElementFilter(logicalOrFilter);
+                doc.ActiveView.SetFilterVisibility(filter.Id, true);
+                t.Commit();
             }
 
-            var groupTypeName = walls.GroupBy(x => x.Name).ToList();
-            Dictionary<string, List<Element>> resutlClass;
-            List<string> listNameWall = walls.Select(x => x.Name).ToList();
-            var listNameWall2 = walls.Select(x => new
+            FillPatternElement patternSolid = new FilteredElementCollector(doc).OfClass(typeof(FillPatternElement))
+                                                .Cast<FillPatternElement>()
+                                                .FirstOrDefault(x => x.GetFillPattern().Target == FillPatternTarget.Drafting
+                                                                        && x.GetFillPattern().IsSolidFill);
+
+            OverrideGraphicSettings overrideGraphicSettings = new OverrideGraphicSettings();
+            overrideGraphicSettings.SetSurfaceForegroundPatternColor(new Autodesk.Revit.DB.Color(255, 0, 0));
+            overrideGraphicSettings.SetSurfaceBackgroundPatternColor(new Autodesk.Revit.DB.Color(255, 0, 0));
+            overrideGraphicSettings.SetSurfaceForegroundPatternId(patternSolid.Id);
+            overrideGraphicSettings.SetSurfaceBackgroundPatternId(patternSolid.Id);
+            overrideGraphicSettings.SetHalftone(true);
+            using (Transaction t = new Transaction(doc, "SetOverride"))
             {
-                Id = x.Id,
-                Name = x.Name
-            }).ToList();
-
-            bool isAlllTrue = walls.All(x => x.Name == typeName);
-            bool isAnyTrue = walls.Any(x => x.Name == typeName);
-
-            List<Element> listContain = walls.Where(x => x.Name.Contains("Generic")).ToList();
-            int totalCount = listContain.Count;
-            Wall wall = null;
-            int index = walls.IndexOf(wall);
-            Element elementFind = walls.ElementAt(1); 
-
-            Element findFist = walls.First(x => x.Name == typeName);
-            Element findFistDefault = walls.FirstOrDefault(x => x.Name == typeName);
-
-            bool isExisted = walls.Exists(x => x.Name == typeName);
-
-            List<(string, List<Element>)> tuppleList = new List<(string, List<Element>)>();
-            List<Element> list1 = new List<Element>();
-            list1.Add(walls[0]);
-            list1.Add(walls[1]);
-            tuppleList.Add(("11111", list1));
-            tuppleList.Add(("11111", list1));
-            foreach(var item in tuppleList)
-            {
-                string itemVal1 = item.Item1;
-                List<Element> elements2 = item.Item2;
+                t.Start();
+                doc.ActiveView.SetFilterOverrides(filter.Id, overrideGraphicSettings);
+                t.Commit();
             }
 
-            List<(string TypeName, List<Element> ListTypes)> tuppleList2 = new List<(string, List<Element>)>();
-            foreach(var item in tuppleList2)
-            {
-                string itemVal1 = item.TypeName;
-                List<Element> element2 = item.ListTypes;
-            }
 
-            List<string> listString = new List<string> { "1", "1", "3" };
-            listString.Add("1");
-            HashSet<string> hashSet = new HashSet<string> { "1", "1", "3" };
-            hashSet.Add("1");
+
+            IEnumerable<Element> listBeamOff = beamCollection.WherePasses(logicalOrFilter).ToElements();
+
+
+            IEnumerable<ElementId> selectedIds = listBeamOff.Select(x => x.Id);
+
+            //uiDoc.Selection.SetElementIds(selectedIds.ToList());
+
+
+
 
             return Result.Succeeded;
         }
@@ -136,7 +118,7 @@ namespace RevitApiOnline
     {
         public bool AllowElement(Element elem)
         {
-            if(elem !=null && elem is Wall)
+            if (elem != null && elem is Wall)
             {
                 return true;
             }
