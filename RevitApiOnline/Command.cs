@@ -16,6 +16,8 @@ using System;
 using System.Collections;
 using System.Data.SqlTypes;
 using System.Windows.Media;
+using System.Runtime.InteropServices;
+using System.Net.WebSockets;
 
 namespace RevitApiOnline
 {
@@ -74,6 +76,10 @@ namespace RevitApiOnline
             dictionaryElement.Add(4444, walls[1]);
             dictionaryElement.Add(444555, walls[1]);
             Element wallKey11 = dictionaryElement[1111];
+            foreach(KeyValuePair<long, Element> pairItem in dictionaryElement)
+            {
+
+            }
 
             var groupTypeName = walls.GroupBy(x => x.Name).ToList();
             Dictionary<string, List<Element>> resutlClass;
@@ -91,13 +97,36 @@ namespace RevitApiOnline
             int totalCount = listContain.Count;
             Wall wall = null;
             int index = walls.IndexOf(wall);
-            Element elementFind = walls.ElementAt(1);
+            Element elementFind = walls.ElementAt(1); 
 
             Element findFist = walls.First(x => x.Name == typeName);
             Element findFistDefault = walls.FirstOrDefault(x => x.Name == typeName);
 
             bool isExisted = walls.Exists(x => x.Name == typeName);
 
+            List<(string, List<Element>)> tuppleList = new List<(string, List<Element>)>();
+            List<Element> list1 = new List<Element>();
+            list1.Add(walls[0]);
+            list1.Add(walls[1]);
+            tuppleList.Add(("11111", list1));
+            tuppleList.Add(("11111", list1));
+            foreach(var item in tuppleList)
+            {
+                string itemVal1 = item.Item1;
+                List<Element> elements2 = item.Item2;
+            }
+
+            List<(string TypeName, List<Element> ListTypes)> tuppleList2 = new List<(string, List<Element>)>();
+            foreach(var item in tuppleList2)
+            {
+                string itemVal1 = item.TypeName;
+                List<Element> element2 = item.ListTypes;
+            }
+
+            List<string> listString = new List<string> { "1", "1", "3" };
+            listString.Add("1");
+            HashSet<string> hashSet = new HashSet<string> { "1", "1", "3" };
+            hashSet.Add("1");
 
             return Result.Succeeded;
         }
