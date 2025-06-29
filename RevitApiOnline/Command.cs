@@ -44,10 +44,10 @@ namespace RevitApiOnline
             ElementId newId= new ElementId(id);
             List<Element> wallsType300 = walls.Where(y => y.Name == typeName && y.Id.Value== id).ToList();
 
-            List<Element> wallsType3002 = walls.Where(x =>
+            List<Element> wallsType3002 = walls.Where(item =>
             {
-                bool isTrueType = x.Name == typeName;
-                bool isTrueId = x.Id.Value == id;
+                bool isTrueType = item.Name == typeName;
+                bool isTrueId = item.Id.Value == id;
                 return isTrueType && isTrueId;
             }).ToList();
 
@@ -58,9 +58,9 @@ namespace RevitApiOnline
             };
             List<Element> wallsType3003 = walls.Where(fucntionTypeId).ToList();
 
-            List<Element> wallsType3004 = (from el in walls
+            List<ElementId> wallsType3004 = (from el in walls
                                           where el.Name == typeName && el.Id.Value == id
-                                          select el).ToList();
+                                          select el.Id).ToList();
 
 
             List<Wall> ofTypeWalls = walls.OfType<Wall>().ToList();
