@@ -19,6 +19,7 @@ using System.Windows.Media;
 using System.Runtime.InteropServices;
 using System.Net.WebSockets;
 using RevitApiOnline.Wpf;
+using RevitApiOnline.WallWpf;
 
 namespace RevitApiOnline
 {
@@ -30,12 +31,29 @@ namespace RevitApiOnline
             UIDocument uiDoc = commandData.Application.ActiveUIDocument;
             Document doc = uiDoc.Document;
 
-            GridLearn form = new GridLearn();
-            // form.Show(); // show nhung ma co the tuong tac duoc revit
-            //form.ShowDialog(); // khong tuong tac duoc revit
-            form.ShowDialog();
+            var pickElement = uiDoc.Selection.PickObject(ObjectType.Element, "Pick a wall");
+            Wall wall = doc.GetElement(pickElement) as Wall;
+            WallType wallType= wall.WallType;
+            Parameter heighPara= wall.get_Parameter(BuiltInParameter.WALL_USER_HEIGHT_PARAM);
+            double wallHeight=Math.Round(UnitUtils.ConvertFromInternalUnits(heighPara.AsDouble(), UnitTypeId.Millimeters));
+            WallInfoVM wallInfoVm = new WallInfoVM(wallType.Name, wallType.Id, wallHeight, wall.Id);
+            ParameterSet listParameter = wall.Parameters;
+            List<ParameterVm> listParameterVm= new List<ParameterVm>();
+            foreach(Parameter param in listParameter)
+            {
+                ParameterVm parameterVm = new ParameterVm(param.Id, param.Definition.Name);
+                listParameterVm.Add(parameterVm);
+            }
+            wallInfoVm.ListPara = listParameterVm;
 
-            string valueTextBox = form.textBoxDemo.Text;
+            WallInfoWpf form = new WallInfoWpf();
+            form.DataContext = wallInfoVm;
+            bool? formResult= form.ShowDialog();
+            if (formResult == true)
+            {
+                WallInfoVM dataContextForm = form.DataContext as WallInfoVM;
+
+            }
 
 
             return Result.Succeeded;

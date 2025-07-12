@@ -1,0 +1,51 @@
+﻿<Window x:Class="RevitApiOnline.WallWpf.WallInfoWpf"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:RevitApiOnline.WallWpf"
+             mc:Ignorable="d" 
+             Width="400" Height="300"
+             d:DataContext="{d:DesignInstance local:WallInfoVM}" >
+    <Window.Resources>
+        <Style x:Key="lableStyle" TargetType="Label">
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+        <Style x:Key="textBoxStyle" TargetType="TextBox">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style x:Key="comboboxStyle" TargetType="ComboBox">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+    </Window.Resources>
+    <Grid Margin="5">
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition Height="30"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="100"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Label Style="{StaticResource lableStyle}" Content="Wall Type Name:"/>
+        <TextBox Text="{Binding WallTypeName}" Style="{StaticResource textBoxStyle}" Grid.Column="1" />
+        <Label Grid.Row="1" Style="{StaticResource lableStyle}" Content="Wall Height:"/>
+        <TextBox Text="{Binding WallHeight}" Grid.Row="1" Style="{StaticResource textBoxStyle}" Grid.Column="1" />
+        <Button Click="btnOK" Grid.Row="3" Grid.Column="1" Width="80" HorizontalAlignment="Right" Content="OK"/>
+        <Label Style="{StaticResource lableStyle}" Grid.Row="2" Content="Parametes"/>
+        <ComboBox ItemsSource="{Binding ListPara}" Style="{StaticResource comboboxStyle}" Grid.Row="2" Grid.Column="1"
+                  SelectedItem="{Binding SelectedParameter}">
+            <ComboBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding ParamterName}"/>
+                        <TextBlock Text="-Id="/>
+                        <TextBlock Foreground="Green" Text="{Binding ParamterId}"/>
+                    </StackPanel>
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
+    </Grid>
+</Window>
