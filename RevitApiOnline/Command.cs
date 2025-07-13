@@ -55,6 +55,10 @@ namespace RevitApiOnline
 
             }
 
+            Family family = null;
+            Category genericModelCategory = doc.Settings.Categories.get_Item(BuiltInCategory.OST_GenericModel);
+            var familyGeneric= new FilteredElementCollector(doc).OfClass(typeof(Family))
+                .Cast<Family>().Where(x=>x.FamilyCategory!=null && x.FamilyCategory==genericModelCategory);
 
             return Result.Succeeded;
         }
