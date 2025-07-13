@@ -1,25 +1,10 @@
 ﻿using Autodesk.Revit.Attributes;
-using Autodesk.Revit.UI;
 using Autodesk.Revit.DB;
-using System.Collections.Generic;
-using System.Windows.Media.Animation;
-using RevitApiOnline.Shared.Interfaces;
-using RevitApiOnline.Shared.Implements;
-using Autodesk.Revit.DB.Mechanical;
-using Autodesk.Revit.DB.Plumbing;
-using Autodesk.Revit.DB.Structure;
+using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
-using System.DirectoryServices.ActiveDirectory;
+using RevitApiOnline.ListBox;
+using System.Collections.Generic;
 using System.Linq;
-using System.Xml.Linq;
-using System;
-using System.Collections;
-using System.Data.SqlTypes;
-using System.Windows.Media;
-using System.Runtime.InteropServices;
-using System.Net.WebSockets;
-using RevitApiOnline.Wpf;
-using RevitApiOnline.WallWpf;
 
 namespace RevitApiOnline
 {
@@ -31,34 +16,32 @@ namespace RevitApiOnline
             UIDocument uiDoc = commandData.Application.ActiveUIDocument;
             Document doc = uiDoc.Document;
 
-            var pickElement = uiDoc.Selection.PickObject(ObjectType.Element, "Pick a wall");
-            Wall wall = doc.GetElement(pickElement) as Wall;
-            WallType wallType= wall.WallType;
-            Parameter heighPara= wall.get_Parameter(BuiltInParameter.WALL_USER_HEIGHT_PARAM);
-            double wallHeight=Math.Round(UnitUtils.ConvertFromInternalUnits(heighPara.AsDouble(), UnitTypeId.Millimeters));
-            WallInfoVM wallInfoVm = new WallInfoVM(wallType.Name, wallType.Id, wallHeight, wall.Id);
-            ParameterSet listParameter = wall.Parameters;
-            List<ParameterVm> listParameterVm= new List<ParameterVm>();
-            foreach(Parameter param in listParameter)
+            var listWall = new FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_Walls)
+                .WhereElementIsNotElementType().OfClass(typeof(Wall))
+                .Cast<Wall>().Where(x => x.WallType != null && x.WallType.Kind != WallKind.Curtain)
+                .ToList();
+            List<WallInfo> listWallInfo= new List<WallInfo>();
+            foreach(Wall wall in listWall)
             {
-                ParameterVm parameterVm = new ParameterVm(param.Id, param.Definition.Name);
-                listParameterVm.Add(parameterVm);
+                WallInfo wallInfo = new WallInfo();
+                wallInfo.NameWall = wall.Name;
+                wallInfo.WallId = wall.Id;
+                wallInfo.LevelId = wall.LevelId;
+                wallInfo.LevelName = doc.GetElement(wall.LevelId).Name;
+                listWallInfo.Add(wallInfo);
             }
-            wallInfoVm.ListPara = listParameterVm;
-
-            WallInfoWpf form = new WallInfoWpf();
-            form.DataContext = wallInfoVm;
-            bool? formResult= form.ShowDialog();
-            if (formResult == true)
+            listWallInfo= listWallInfo.OrderBy(x=>x.NameWall).ToList();
+            WallListBoxVM dataContext = new WallListBoxVM();
+            dataContext.WallInfos = listWallInfo;
+            var form = new ListBoxWpf(listWallInfo);
+            form.DataContext = dataContext;
+            var resultForm= form.ShowDialog();
+            if(resultForm == true)
             {
-                WallInfoVM dataContextForm = form.DataContext as WallInfoVM;
+                var selectedItems = (form.DataContext as WallListBoxVM).WallInfos.Where(x=>x.IsChecked);
 
             }
 
-            Family family = null;
-            Category genericModelCategory = doc.Settings.Categories.get_Item(BuiltInCategory.OST_GenericModel);
-            var familyGeneric= new FilteredElementCollector(doc).OfClass(typeof(Family))
-                .Cast<Family>().Where(x=>x.FamilyCategory!=null && x.FamilyCategory==genericModelCategory);
 
             return Result.Succeeded;
         }
