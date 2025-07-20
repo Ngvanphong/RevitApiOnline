@@ -2,6 +2,7 @@
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
+using RevitApiOnline.DataGridLearn;
 using RevitApiOnline.ListBox;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,34 +17,42 @@ namespace RevitApiOnline
             UIDocument uiDoc = commandData.Application.ActiveUIDocument;
             Document doc = uiDoc.Document;
 
-            var listWall = new FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_Walls)
-                .WhereElementIsNotElementType().OfClass(typeof(Wall))
-                .Cast<Wall>().Where(x => x.WallType != null && x.WallType.Kind != WallKind.Curtain)
+            var familyCollection = new FilteredElementCollector(doc).OfClass(typeof(Family))
+                .Cast<Family>().Where(x => x.FamilyCategoryId.Value == (long)BuiltInCategory.OST_StructuralFraming)
                 .ToList();
-            List<WallInfo> listWallInfo= new List<WallInfo>();
-            foreach(Wall wall in listWall)
+            DataGridAppShow.ListFamilyBeam = familyCollection;
+
+            List<DataGridItem> listDataGrid = new List<DataGridItem>();
+
+            List<BeamFamilyVM> listBeamFamilyVm = familyCollection
+                .Select(x =>new BeamFamilyVM { FamilyId = x.Id, FamilyName = x.Name }).ToList();
+            //foreach(Family family in familyCollection)
+            //{
+            //    BeamFamilyVM beamFamilyVM = new BeamFamilyVM();
+            //    beamFamilyVM.FamilyName = family.Name;
+            //    beamFamilyVM.FamilyId = family.Id;
+            //    listBeamFamilyVm.Add(beamFamilyVM);
+            //}
+
+            foreach (Family family in familyCollection)
             {
-                WallInfo wallInfo = new WallInfo();
-                wallInfo.NameWall = wall.Name;
-                wallInfo.WallId = wall.Id;
-                wallInfo.LevelId = wall.LevelId;
-                wallInfo.LevelName = doc.GetElement(wall.LevelId).Name;
-                listWallInfo.Add(wallInfo);
+                DataGridItem dataItem = new DataGridItem();
+                dataItem.BeamFamilies = listBeamFamilyVm;
+                listDataGrid.Add(dataItem);
             }
-            listWallInfo= listWallInfo.OrderBy(x=>x.NameWall).ToList();
-            WallListBoxVM dataContext = new WallListBoxVM();
-            dataContext.WallInfos = listWallInfo;
-            var form = new ListBoxWpf(listWallInfo);
-            form.DataContext = dataContext;
-            var resultForm= form.ShowDialog();
-            if(resultForm == true)
+
+            var form = new DataGridWpf(doc);
+            form.dataGridFamilyBeam.ItemsSource = listDataGrid;
+            bool? resultForm= form.ShowDialog();
+            if (resultForm == true)
             {
-                var selectedItems = (form.DataContext as WallListBoxVM).WallInfos.Where(x=>x.IsChecked);
+                List<DataGridItem> listResultDataGrid = form.dataGridFamilyBeam.ItemsSource as List<DataGridItem>;
 
             }
 
 
-            return Result.Succeeded;
+
+             return Result.Succeeded;
         }
     }
 
