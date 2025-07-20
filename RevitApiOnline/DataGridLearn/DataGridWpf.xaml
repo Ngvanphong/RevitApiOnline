@@ -11,55 +11,78 @@
             <RowDefinition/>
             <RowDefinition Height="30"/>
         </Grid.RowDefinitions>
-        <DataGrid CanUserAddRows="False" CanUserDeleteRows="False" Name="dataGridFamilyBeam" AutoGenerateColumns="False">
-            <DataGrid.Columns>
-                <DataGridTemplateColumn Width="100" Header="Beam Family">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <ComboBox SelectionChanged="comboboxFamilyChanged"  ItemsSource="{Binding BeamFamilies}" 
-                                      SelectedItem="{Binding SelectedFamily, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}">
-                                <ComboBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Foreground="Purple" Text="{Binding FamilyName}"/>
-                                    </DataTemplate>
-                                </ComboBox.ItemTemplate>
-                            </ComboBox>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
+        <TabControl>
+            <TabItem Header="Beam">
+                <DataGrid CanUserAddRows="False" CanUserDeleteRows="False" Name="dataGridFamilyBeam" AutoGenerateColumns="False">
+                    <DataGrid.Columns>
+                        <DataGridTemplateColumn Width="100" Header="Beam Family">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <ComboBox SelectionChanged="comboboxFamilyChanged"  ItemsSource="{Binding BeamFamilies}" 
+                                SelectedItem="{Binding SelectedFamily, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Foreground="Purple" Text="{Binding FamilyName}"/>
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
 
-                <DataGridTemplateColumn Width="120" Header="Type Name">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <ComboBox ItemsSource="{Binding FamilySymbols, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                                      SelectedItem="{Binding SelectedSymbol, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}">
-                                <ComboBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Foreground="Purple" Text="{Binding TypeName}"/>
-                                    </DataTemplate>
-                                </ComboBox.ItemTemplate>
-                            </ComboBox>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Width="120" Header="Type Name">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <ComboBox ItemsSource="{Binding FamilySymbols, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                SelectedItem="{Binding SelectedSymbol, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Foreground="Purple" Text="{Binding TypeName}"/>
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
 
-                <DataGridTemplateColumn Width="100" Header="Parameter">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <ComboBox ItemsSource="{Binding ParameterVms}" 
-                                 SelectedItem="{Binding SelectedParameter}">
-                                <ComboBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Foreground="Purple" Text="{Binding ParameterName}"/>
-                                    </DataTemplate>
-                                </ComboBox.ItemTemplate>
-                            </ComboBox>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Width="100" Header="Parameter">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <ComboBox ItemsSource="{Binding ParameterVms}" 
+                           SelectedItem="{Binding SelectedParameter}">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Foreground="Purple" Text="{Binding ParameterName}"/>
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
 
-            </DataGrid.Columns>
-        </DataGrid>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>
+            <TabItem Header="Column">
+                <TreeView  Name="treeViewPerson">
+                    <TreeView.ItemTemplate >
+                        <HierarchicalDataTemplate DataType="{x:Type local:TreeViewItemVm}" ItemsSource="{Binding Items}">
+                            <TextBlock Text="{Binding Name}"/>
+                        </HierarchicalDataTemplate>
+                    </TreeView.ItemTemplate>
+                    <TreeView.ItemContainerStyle>
+                        <Style TargetType="TreeViewItem">
+                            <Setter Property="IsExpanded" Value="True" />
+                        </Style>
+                    </TreeView.ItemContainerStyle>
+                </TreeView>
+                
+                
+                
+            </TabItem>
+        </TabControl>
+        
+      
 
         <Button Click="btnOK" Grid.Row="1" Width="80" Content="OK" HorizontalAlignment="Right"/>
     </Grid>

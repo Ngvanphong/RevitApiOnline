@@ -22,9 +22,36 @@ namespace RevitApiOnline.DataGridLearn
     public partial class DataGridWpf : Window
     {
         private Document _doc;
-        public DataGridWpf(Document doc)
+        public DataGridWpf(Document doc, List<TreeViewItemVm> listTreeViewItem)
         {
             InitializeComponent();
+            //MadePerson person1 = new MadePerson();
+            //person1.Name = "N V A1";
+            //MadePerson person2 = new MadePerson();
+            //person2.Name = "N N A1.1";
+            //MadePerson person3 = new MadePerson();
+            //person3.Name = "N N A1.2";
+            //person1.Persons.Add(person2);
+            //person1.Persons.Add(person3);   
+
+           
+            //MadePerson person4 = new MadePerson();
+            //person4.Name = "N N A2";
+            //MadePerson person5 = new MadePerson();
+            //person5.Name = "N N A2.1";
+            //person4.Persons.Add(person5);
+
+            //person2.Persons.Add(person4);
+
+            //List<MadePerson> listAllPerson = new List<MadePerson>();
+            //listAllPerson.Add(person1);
+            //listAllPerson.Add(person4);
+
+            //treeViewPerson.ItemsSource= listAllPerson;
+            foreach(TreeViewItemVm item in listTreeViewItem)
+            {
+                treeViewPerson.Items.Add(item);
+            }
             _doc = doc;
         }
 
