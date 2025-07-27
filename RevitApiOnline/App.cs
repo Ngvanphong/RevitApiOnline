@@ -1,4 +1,5 @@
 ﻿using Autodesk.Revit.UI;
+using RevitApiOnline.Buttons;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +12,11 @@ namespace RevitApiOnline
     {
         public Result OnStartup(UIControlledApplication application)
         {
+            new CreatePipeButton().CreatePipe(application);
+            new DemoSplitButton().DemoSplit(application);
+            new DemoPulldownButton().DemoPulldown(application);
+            new DemoSmallButton().DemoSmall(application);
+            new DemoCombineButton().DemoCombine(application);
             return Result.Succeeded;
         }
         public Result OnShutdown(UIControlledApplication application)
