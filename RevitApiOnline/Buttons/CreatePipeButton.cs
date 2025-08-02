@@ -1,4 +1,5 @@
 ﻿using Autodesk.Revit.UI;
+using RevitApiOnline.CreaetWallByPoint;
 using RevitApiOnline.CreatePiping;
 using System;
 using System.Reflection;
@@ -43,9 +44,9 @@ namespace RevitApiOnline.Buttons
                 ribbonPanel = app.CreateRibbonPanel(AppConstants.TabName, AppConstants.PanelName);
             }
 
-            string buttonId = $"CreatePipe{new Random().Next(1, 9000).ToString()}";
-            PushButtonData pushButtonData = new PushButtonData(buttonId, "Create\nPiping",
-                Assembly.GetExecutingAssembly().Location, typeof(CreatePipeBinding).FullName);
+            string buttonId = $"CreateWall{new Random().Next(1, 9000).ToString()}";
+            PushButtonData pushButtonData = new PushButtonData(buttonId, "Create Wall",
+                Assembly.GetExecutingAssembly().Location, typeof(CreateWallBinding).FullName);
             pushButtonData.LongDescription = "Long Desciption";
             pushButtonData.Image = new BitmapImage(new Uri("/RevitApiOnline;component/Images/icons8crop24.png", UriKind.RelativeOrAbsolute));
             pushButtonData.LargeImage = new BitmapImage(new Uri("/RevitApiOnline;component/Images/icons8crop24.png", UriKind.RelativeOrAbsolute));
