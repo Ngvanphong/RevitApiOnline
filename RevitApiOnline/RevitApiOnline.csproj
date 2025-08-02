@@ -31,7 +31,7 @@
 
   <ItemGroup>
     <Reference Include="AdWindows">
-      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Revit 2025\AdWindows.dll</HintPath>
+      <HintPath>C:\Program Files\Autodesk\Revit 2025\AdWindows.dll</HintPath>
     </Reference>
     <Reference Include="RevitAPI">
       <HintPath>C:\Program Files\Autodesk\Revit 2025\RevitAPI.dll</HintPath>
@@ -40,7 +40,7 @@
       <HintPath>C:\Program Files\Autodesk\Revit 2025\RevitAPIUI.dll</HintPath>
     </Reference>
     <Reference Include="UIFramework">
-      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Revit 2025\UIFramework.dll</HintPath>
+      <HintPath>C:\Program Files\Autodesk\Revit 2025\UIFramework.dll</HintPath>
     </Reference>
   </ItemGroup>
 
