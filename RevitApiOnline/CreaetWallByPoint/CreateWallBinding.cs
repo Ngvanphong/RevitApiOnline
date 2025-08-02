@@ -28,7 +28,9 @@ namespace RevitApiOnline.CreaetWallByPoint
 
             CreateWallAppShow.ShowForm();
             CreateWallAppShow.formCreateWall.comboboxWallType.ItemsSource= listWallTypeVm;
-
+            CreateWallDataContext dataContext= new CreateWallDataContext();
+            dataContext.Height = 3000;
+            CreateWallAppShow.formCreateWall.DataContext = dataContext;
 
 
 

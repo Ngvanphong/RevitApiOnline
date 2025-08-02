@@ -11,6 +11,8 @@ namespace RevitApiOnline.CreaetWallByPoint
     public static class CreateWallAppShow
     {
         public static CreateWallWpf formCreateWall;
+        public static XYZ StartPoint;
+        public static XYZ EndPoint; 
         public static void ShowForm()
         {
             StartPointClickHandler startPointClickHandler = new StartPointClickHandler();

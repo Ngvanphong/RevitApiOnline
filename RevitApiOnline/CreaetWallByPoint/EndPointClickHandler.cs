@@ -1,4 +1,5 @@
-﻿using Autodesk.Revit.UI;
+﻿using Autodesk.Revit.DB;
+using Autodesk.Revit.UI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,14 @@ namespace RevitApiOnline.CreaetWallByPoint
     {
         public void Execute(UIApplication app)
         {
-            throw new NotImplementedException();
+            UIDocument uiDoc = app.ActiveUIDocument;
+            try
+            {
+                XYZ pointClick = uiDoc.Selection.PickPoint("Pick a point");
+                CreateWallAppShow.EndPoint = pointClick;
+            }
+            catch { }
+           
         }
 
         public string GetName()
