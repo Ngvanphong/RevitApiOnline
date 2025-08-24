@@ -17,11 +17,25 @@ namespace RevitApiOnline.FamilyChange
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
+        private List<FamilyVM> families;
+        public List<FamilyVM> Families
+        {
+            get { return families; }
+            set { families = value; OnPropertyChanged(nameof(Families)); }
+        }
+
         private FamilyVM family;
         public FamilyVM Family
         {
             get { return family; }
             set { family = value; OnPropertyChanged(nameof(Family)); }
+        }
+
+        private List<TypeVM> listTypeVM;
+        public List<TypeVM> ListTypeVM
+        {
+            get { return listTypeVM; }
+            set { listTypeVM = value;OnPropertyChanged(nameof(ListTypeVM)); }
         }
 
         private TypeVM originalType;
@@ -37,6 +51,8 @@ namespace RevitApiOnline.FamilyChange
             get { return targetType; }
             set { targetType = value; OnPropertyChanged(nameof(TargetType)); }
         }
+
+        public string Connect { set; get; } = "--->";
 
 
     }

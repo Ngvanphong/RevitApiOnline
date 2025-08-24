@@ -15,15 +15,33 @@ namespace RevitApiOnline.FamilyChange
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             Document doc = commandData.Application.ActiveUIDocument.Document;
-            ChangeFamilyTypeAppShow.ShowForm();
             GridDataContext dataContext = new GridDataContext();
-           
-            var categories = doc.Settings.Categories;
-            List<FamilyCategoryVM> listFamilyVm= new List<FamilyCategoryVM>();
+            dataContext.ObservableFamilyOriginTarget = new System.Collections.ObjectModel.ObservableCollection<FamilyOriginTarget>();
 
-            ChangeFamilyTypeAppShow.formChangeFamilyType.combob.ItemsSource = listFamilyVm;
-            ChangeFamilyTypeAppShow.formChangeFamilyType.dataGrid.ItemsSource = dataContext.ObservableFamilyOriginTarget;
-            ChangeFamilyTypeAppShow.formChangeFamilyType.DataContext = dataContext;
+            var categories = doc.Settings.Categories;
+            List<FamilyCategoryVM> listFamilyVm = new List<FamilyCategoryVM>();
+            foreach (Category cate in categories)
+            {
+                if (cate.Id.Value == (long)BuiltInCategory.OST_StructuralColumns ||
+                    cate.Id.Value == (long)BuiltInCategory.OST_StructuralFraming ||
+                    cate.Id.Value == (long)BuiltInCategory.OST_MechanicalEquipment)
+                {
+                    FamilyCategoryVM familyCategoryVM = new FamilyCategoryVM();
+                    familyCategoryVM.FamilyCategoryId = cate.Id;
+                    familyCategoryVM.FamilyCategoryName = cate.Name;
+                    listFamilyVm.Add(familyCategoryVM);
+                }
+            }
+
+            ChangeFamilyTypeAppShow.ShowForm();
+
+            ChangeFamilyTypeAppShow.formChangeFamilyType.commboxFamilyCategory.ItemsSource = listFamilyVm;
+
+            //ChangeFamilyTypeAppShow.formChangeFamilyType.dataGrid.ItemsSource = dataContext.ObservableFamilyOriginTarget;
+            //ChangeFamilyTypeAppShow.formChangeFamilyType.DataContext = dataContext;
+
+            ChangeFamilyTypeAppShow.formChangeFamilyType.DataContext= dataContext;
+            
 
             return Result.Succeeded;
         }

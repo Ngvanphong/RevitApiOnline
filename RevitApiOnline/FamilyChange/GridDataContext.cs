@@ -11,12 +11,7 @@ namespace RevitApiOnline.FamilyChange
 {
     public class GridDataContext : INotifyPropertyChanged
     {
-        private List<FamilyVM> families;
-        public List<FamilyVM> Families
-        {
-            get { return families; }
-            set { families = value; OnPropertyChanged(nameof(Families)); }
-        }
+        
 
 
         private FamilyCategoryVM familyCategory;
