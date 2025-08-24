@@ -25,7 +25,7 @@
 
         <Label Content="Wall Type:"/>
         <ComboBox Height="30" Name="comboboxWallType" Grid.Column="1" Grid.ColumnSpan="2"
-                  SelectedItem="{Binding WallType}">
+                  SelectedItem="{Binding WallType}" DisplayMemberPath="TypeName">
             <ComboBox.ItemTemplate>
                 <DataTemplate>
                     <TextBlock Text="{Binding TypeName}"/>
