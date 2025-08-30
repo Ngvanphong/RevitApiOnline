@@ -14,8 +14,13 @@ namespace RevitApiOnline.CreatePiping
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            Document doc = commandData.Application.ActiveUIDocument.Document;
-            throw new NotImplementedException();
+            UIDocument uiDoc = commandData.Application.ActiveUIDocument;
+            Document doc = uiDoc.Document;
+            //Geometry
+
+            
+
+            return Result.Succeeded;
         }
     }
 }
