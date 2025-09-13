@@ -9,12 +9,14 @@ namespace RevitApiOnline.Shared
 {
     public class GeometryHelper
     {
-        public static void GeoSolidElement(Document doc,Element element,ref List<Solid> listSolid)
+        public static void GeoSolidElement(Document doc,Element element,ref List<Solid> listSolid, 
+            ref List<Line> listLine)
         {
             Options options= new Options();
             options.ComputeReferences = true;
             options.IncludeNonVisibleObjects = false;
             options.View = doc.ActiveView;
+            //options.DetailLevel = ViewDetailLevel.Medium;
 
             //Get Solid of this element
             GeometryElement geoElement = element.get_Geometry(options);
@@ -28,9 +30,13 @@ namespace RevitApiOnline.Shared
                         listSolid.Add(solid);   
                     }
                 }
-                else if(geoObj is GeometryInstance)
+                else if(geoObj is Line)
                 {
-                    GeometryInstance geoInstance= (GeometryInstance)geoObj;
+                    listLine.Add(geoObj as Line);
+                }
+                else if (geoObj is GeometryInstance)
+                {
+                    GeometryInstance geoInstance = (GeometryInstance)geoObj;
                     if (geoInstance.GetInstanceGeometry() != null)
                     {
                         foreach (GeometryObject geoObj2 in geoInstance.GetInstanceGeometry())
@@ -42,6 +48,10 @@ namespace RevitApiOnline.Shared
                                 {
                                     listSolid.Add(solid);
                                 }
+                            }
+                            else if(geoObj2 is Line)
+                            {
+                                listLine.Add(geoObj2 as Line);
                             }
                         }
                     }
@@ -59,7 +69,7 @@ namespace RevitApiOnline.Shared
                     foreach (var subId in subIds)
                     {
                         Element elementSub = doc.GetElement(subId);
-                        GeoSolidElement(doc, elementSub, ref listSolid);
+                        GeoSolidElement(doc, elementSub, ref listSolid, ref listLine);
                     }
                 }
                 
