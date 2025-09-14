@@ -25,7 +25,7 @@ namespace RevitApiOnline.CreatePiping
                 List<Solid> listSolid = new List<Solid>();
                 List<Line> listLine = new List<Line>();
                 GeometryHelper.GeoSolidElement(doc, element,ref listSolid, ref listLine);
-                if(element is FamilyInstance)
+                if (element is FamilyInstance)
                 {
                     FamilyInstance instance = element as FamilyInstance;
                     Transform transform = instance.GetTransform();
@@ -35,20 +35,20 @@ namespace RevitApiOnline.CreatePiping
                     ReferenceArray listVerticalRef = new ReferenceArray();
                     foreach (Solid solid in listSolid)
                     {
-                        foreach(Face face in solid.Faces)
+                        foreach (Face face in solid.Faces)
                         {
                             PlanarFace planarFace = face as PlanarFace;
                             if (planarFace != null)
                             {
                                 XYZ normalFace = planarFace.FaceNormal.Normalize();
                                 double dotProductHorizontal = horizontal.DotProduct(normalFace);
-                                if(Math.Abs(Math.Abs(dotProductHorizontal) - 1) < 0.000001)
+                                if (Math.Abs(Math.Abs(dotProductHorizontal) - 1) < 0.000001)
                                 {
                                     if (face.Reference != null)
                                     {
                                         listHorizotalRef.Append(face.Reference);
                                     }
-                                    
+
                                 }
                                 double dotProductVertical = vertical.DotProduct(normalFace);
                                 if (Math.Abs(Math.Abs(dotProductVertical) - 1) < 0.000001)
@@ -61,7 +61,7 @@ namespace RevitApiOnline.CreatePiping
                             }
                         }
                     }
-                    foreach(Line line in listLine)
+                    foreach (Line line in listLine)
                     {
                         XYZ directionLine = line.Direction.Normalize(); ;
                         double dotProductHorizontal = horizontal.DotProduct(directionLine);
@@ -71,17 +71,30 @@ namespace RevitApiOnline.CreatePiping
                             {
                                 listHorizotalRef.Append(line.Reference);
                             }
-                            
+
                         }
                         double dotProductVertical = vertical.DotProduct(directionLine);
                         if (Math.Abs(Math.Abs(dotProductVertical) - 1) < 0.000001)
                         {
-                            if(line.Reference != null)
+                            if (line.Reference != null)
                             {
                                 listVerticalRef.Append(line.Reference);
                             }
                         }
                     }
+
+                    // tim grid
+                    GridInfo gridInfo = FindGridAroundFoundation.GetGridAroundFoundation(doc, instance,
+                        horizontal, vertical);
+                    if (gridInfo.VerticalGrid != null)
+                    {
+                        listHorizotalRef.Append(new Reference(gridInfo.VerticalGrid));
+                    }
+                    if (gridInfo.HorizontalGrid != null)
+                    {
+                        listVerticalRef.Append(new Reference(gridInfo.HorizontalGrid));
+                    }
+
                     BoundingBoxXYZ boundingBox = element.get_BoundingBox(doc.ActiveView);
                     XYZ min = boundingBox.Min;
                     double extend = 1000 / 304.8;
@@ -92,19 +105,30 @@ namespace RevitApiOnline.CreatePiping
                     Line lineVertical = Line.CreateUnbound(pointVertical, vertical);
                     DimensionType dimType = new FilteredElementCollector(doc).OfClass(typeof(DimensionType)).Cast<DimensionType>()
                         .FirstOrDefault(x => x.Name == "");
+                    Dimension horizontalDim = null;
+                    Dimension verticalDim = null;
                     using(Transaction t= new Transaction(doc, "CreateDim"))
                     {
                         t.Start();
-                        doc.Create.NewDimension(doc.ActiveView, lineHorizon, listHorizotalRef);
-                        doc.Create.NewDimension(doc.ActiveView, lineVertical, listVerticalRef);
+                        horizontalDim= doc.Create.NewDimension(doc.ActiveView, lineHorizon, listHorizotalRef);
+                        verticalDim= doc.Create.NewDimension(doc.ActiveView, lineVertical, listVerticalRef);
                         t.Commit();
                     }
+                    RemoveZeroDimension.RemoveZeroDim(doc, horizontalDim);
+                    RemoveZeroDimension.RemoveZeroDim(doc, verticalDim);
+
                     
                 }
                 
 
             }
+            double sum = SumAdd(5);
             return Result.Succeeded;
+        }
+        public double SumAdd(double n)
+        {
+            if (n == 1) return 1;
+            else return n * SumAdd(n - 1);
         }
     }
 }
