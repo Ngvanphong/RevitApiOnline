@@ -14,7 +14,7 @@ namespace RevitApiOnline.CreateFilterLegend
         {
             UIDocument uiDoc = app.ActiveUIDocument;
             Document doc= uiDoc.Document;
-            CategoryFilter categoryFiter = CategoryFilter.Floor;
+            CategoryFilter categoryFilter = CategoryFilter.Floor;
             TypeFilter typeFilter = TypeFilter.Elevation;
 
             var floors= new FilteredElementCollector(doc).OfClass(typeof(Floor)).Cast<Floor>().ToList();
@@ -27,9 +27,10 @@ namespace RevitApiOnline.CreateFilterLegend
                     listNamePattern.Add(namePattern);
                 }
             }
-            Dictionary<string, PatternColor> dictionPattenColor = ColorAndPattern.DictionaryForPatternAndColor(doc, listNamePattern);
+            Dictionary<string, PatternColor> dictionaryPatternColor = ColorAndPattern.DictionaryForPatternAndColor(doc, listNamePattern);
 
-
+            //create family 
+            
 
         }
 
