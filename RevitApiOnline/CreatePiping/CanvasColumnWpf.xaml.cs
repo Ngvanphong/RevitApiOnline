@@ -39,18 +39,19 @@ namespace RevitApiOnline.CreatePiping
         public CanvasColumnWpf()
         {
             InitializeComponent();
+            this.DataContext = this;
             CoordinateCanvasHelper.GetMinMaxBoundary(ColumnCanvasAppShow.listColumnCurves, out xMin, out xMax, out yMin, out yMax);
-            CreateCurveLoopCanvas();
-            SetScaleCanvas();
+
         }
 
         private void CreateCurveLoopCanvas()
         {
+            double thickness = 30 * (1 - ScaleCanvas);
             foreach (var listLine in ColumnCanvasAppShow.listColumnCurves)
             {
                 foreach (var line in listLine)
                 {
-                    CoordinateCanvasHelper.CreateLineFromLineRevit(columnCanvas, line, xMin, xMax, yMin, yMax);
+                    CoordinateCanvasHelper.CreateLineFromLineRevit(columnCanvas, line, xMin, xMax, yMin, yMax, thickness);
                 }
             }
         }
@@ -95,6 +96,12 @@ namespace RevitApiOnline.CreatePiping
         private void OnPropertyChanged([CallerMemberName] String propertyName = "")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        private void window_loaded(object sender, RoutedEventArgs e)
+        {
+            SetScaleCanvas();
+            CreateCurveLoopCanvas();
         }
     }
 }

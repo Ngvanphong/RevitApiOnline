@@ -5,22 +5,26 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:RevitApiOnline.CreatePiping"
              mc:Ignorable="d" 
-             Width="600" Height="600" Topmost="True">
+             Width="600" Height="600" Topmost="True"
+             Loaded="window_loaded">
     <Grid>
 
-        <ScrollViewer x:Name="scrollView" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Auto" 
-                   PreviewMouseLeftButtonDown="scrollView_PreviewMouseLeftButtonDown"
-                   PreviewMouseRightButtonDown="scrollView_PreviewMouseRightButtonDown" 
-                   MouseMove="scrollView_MouseMove"
-                   PreviewMouseWheel="scrollView_PreviewMouseWheel">
-            <Canvas Name="columnCanvas">
-                <Canvas.LayoutTransform>
-                    <TransformGroup>
-                        <ScaleTransform ScaleX="{Binding ScaleCanvas, UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}"
-                                        ScaleY="{Binding ScaleCanvas,UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}"/>
-                    </TransformGroup>
-                </Canvas.LayoutTransform>
-            </Canvas>
-        </ScrollViewer>
+        <Grid Margin="10">
+            <ScrollViewer x:Name="scrollView" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible" 
+            PreviewMouseLeftButtonDown="scrollView_PreviewMouseLeftButtonDown"
+            PreviewMouseRightButtonDown="scrollView_PreviewMouseRightButtonDown" 
+            MouseMove="scrollView_MouseMove"
+            PreviewMouseWheel="scrollView_PreviewMouseWheel">
+                <Canvas Name="columnCanvas">
+                    <Canvas.LayoutTransform>
+                        <TransformGroup>
+                            <ScaleTransform ScaleX="{Binding ScaleCanvas, UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}"
+                                 ScaleY="{Binding ScaleCanvas,UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}"/>
+                        </TransformGroup>
+                    </Canvas.LayoutTransform>
+                </Canvas>
+            </ScrollViewer>
+        </Grid>
+       
     </Grid>
 </Window>

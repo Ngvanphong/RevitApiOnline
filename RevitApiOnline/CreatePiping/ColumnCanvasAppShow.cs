@@ -14,7 +14,6 @@ namespace RevitApiOnline.CreatePiping
         public static void ShowForm()
         {
             try { frmColumnWpf.Close(); } catch { }
-            listColumnCurves= new List<List<Line>>();
             frmColumnWpf = new CanvasColumnWpf();
             frmColumnWpf.Show();
         }

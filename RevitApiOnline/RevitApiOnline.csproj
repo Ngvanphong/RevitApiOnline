@@ -42,6 +42,9 @@
     <Reference Include="AdWindows" Condition="'$(Configuration)' == 'REVIT2026'">
       <HintPath>C:\Program Files\Autodesk\Revit 2026\AdWindows.dll</HintPath>
     </Reference>
+    <Reference Include="AdWindows">
+      <HintPath>C:\Program Files\Autodesk\Revit 2025\AdWindows.dll</HintPath>
+    </Reference>
 	  
     <Reference Include="RevitAPI">
       <HintPath>C:\Program Files\Autodesk\Revit 2025\RevitAPI.dll</HintPath>
@@ -62,7 +65,7 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="if exist &quot;%25AppData%25\Autodesk\REVIT\Addins\2025&quot; (&#xD;&#xA;    copy /Y &quot;$(ProjectDir)*.addin&quot; &quot;%25AppData%25\Autodesk\REVIT\Addins\2025&quot;&#xD;&#xA;  )&#xD;&#xA;  if exist &quot;%25AppData%25\Autodesk\REVIT\Addins\2025\ApiOnline&quot; (&#xD;&#xA;    copy /Y &quot;$(TargetPath)&quot; &quot;%25AppData%25\Autodesk\REVIT\Addins\2025\ApiOnline&quot;&#xD;&#xA;  )" />
+    <Exec Command="if exist &quot;$(AppData)\Autodesk\REVIT\Addins\2025&quot; copy &quot;$(ProjectDir)*.addin&quot; &quot;$(AppData)\Autodesk\REVIT\Addins\2025&quot;&#xD;&#xA;if exist &quot;$(AppData)\Autodesk\REVIT\Addins\2025\ApiOnline&quot; copy &quot;$(ProjectDir)$(OutputPath)*.dll&quot; &quot;$(AppData)\Autodesk\REVIT\Addins\2025\ApiOnline&quot;" />
   </Target>
 
 </Project>

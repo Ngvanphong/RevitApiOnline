@@ -70,12 +70,7 @@ namespace RevitApiOnline.CreatePiping
             }
 
             ColumnCanvasAppShow.listColumnCurves = listColumnCurves;
-
-
-
-
-
-
+            ColumnCanvasAppShow.ShowForm();
 
             return Result.Succeeded;
         }

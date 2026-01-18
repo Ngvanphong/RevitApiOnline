@@ -56,13 +56,13 @@ namespace RevitApiOnline.Shared
             return new Autodesk.Revit.DB.XYZ(xMili, yMili, pointRevit.Z * 304.8);
         }
 
-        public static Line CreateLineFromLineRevit(Canvas canvas, Autodesk.Revit.DB.Line lineRevit, double xMin, double xMax, double yMin, double yMax)
+        public static Line CreateLineFromLineRevit(Canvas canvas, Autodesk.Revit.DB.Line lineRevit, double xMin, double xMax, double yMin, double yMax, double thickness)
         {
             Autodesk.Revit.DB.XYZ spRevit = lineRevit.GetEndPoint(0);
             Autodesk.Revit.DB.XYZ epRevit = lineRevit.GetEndPoint(1);
             Autodesk.Revit.DB.XYZ spCanvas = ConvertToCoordinateCanvas(spRevit, xMin, xMax, yMin, yMax);
             Autodesk.Revit.DB.XYZ epCanvas = ConvertToCoordinateCanvas(epRevit, xMin, xMax, yMin, yMax);
-            return CreateLine(canvas, spCanvas.X, epCanvas.X, spCanvas.Y, epCanvas.Y, Brushes.Red,2);
+            return CreateLine(canvas, spCanvas.X, epCanvas.X, spCanvas.Y, epCanvas.Y, Brushes.Red,thickness);
 
         }
 
