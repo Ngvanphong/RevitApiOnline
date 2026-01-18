@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36121.58 d17.14
+VisualStudioVersion = 17.14.36121.58
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RevitApiOnline", "RevitApiOnline\RevitApiOnline.csproj", "{0485279D-9BE1-425B-9B07-2CDEB9F5DC4A}"
 EndProject
@@ -9,12 +9,21 @@ Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
+		ReleaseRevit2025|Any CPU = ReleaseRevit2025|Any CPU
+		Revit2025|Any CPU = Revit2025|Any CPU
+		Revit2026|Any CPU = Revit2026|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{0485279D-9BE1-425B-9B07-2CDEB9F5DC4A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0485279D-9BE1-425B-9B07-2CDEB9F5DC4A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0485279D-9BE1-425B-9B07-2CDEB9F5DC4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0485279D-9BE1-425B-9B07-2CDEB9F5DC4A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0485279D-9BE1-425B-9B07-2CDEB9F5DC4A}.ReleaseRevit2025|Any CPU.ActiveCfg = ReleaseRevit2025|Any CPU
+		{0485279D-9BE1-425B-9B07-2CDEB9F5DC4A}.ReleaseRevit2025|Any CPU.Build.0 = ReleaseRevit2025|Any CPU
+		{0485279D-9BE1-425B-9B07-2CDEB9F5DC4A}.Revit2025|Any CPU.ActiveCfg = Revit2025|Any CPU
+		{0485279D-9BE1-425B-9B07-2CDEB9F5DC4A}.Revit2025|Any CPU.Build.0 = Revit2025|Any CPU
+		{0485279D-9BE1-425B-9B07-2CDEB9F5DC4A}.Revit2026|Any CPU.ActiveCfg = Revit2026|Any CPU
+		{0485279D-9BE1-425B-9B07-2CDEB9F5DC4A}.Revit2026|Any CPU.Build.0 = Revit2026|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

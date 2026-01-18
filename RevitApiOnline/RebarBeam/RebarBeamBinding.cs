@@ -16,64 +16,71 @@ namespace RevitApiOnline.RebarBeam
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             UIDocument uiDoc = commandData.Application.ActiveUIDocument;
-            Document doc= uiDoc.Document;
-            FamilyInstance beam= doc.GetElement(uiDoc.Selection.GetElementIds().FirstOrDefault()) as FamilyInstance;  
-            FamilySymbol typeBeam= doc.GetElement(beam.GetTypeId()) as FamilySymbol;
-            double b= typeBeam.LookupParameter("b").AsDouble();
-            double h= typeBeam.LookupParameter("h").AsDouble();
+            Document doc = uiDoc.Document;
+            FamilyInstance beam = doc.GetElement(uiDoc.Selection.GetElementIds().FirstOrDefault()) as FamilyInstance;
+            FamilySymbol typeBeam = doc.GetElement(beam.GetTypeId()) as FamilySymbol;
+            double b = typeBeam.LookupParameter("b").AsDouble();
+            double h = typeBeam.LookupParameter("h").AsDouble();
             Line lineBeam = (beam.Location as LocationCurve).Curve as Line;
             XYZ directionBeam = lineBeam.Direction.Normalize();
             RebarBarType stirrupType = new FilteredElementCollector(doc).OfClass(typeof(RebarBarType)).Cast<RebarBarType>()
                 .FirstOrDefault(x => x.Name == "13M");
-            RebarHookType rebarHookType= new FilteredElementCollector(doc).OfClass(typeof(RebarHookType)).Cast<RebarHookType>()
-                .FirstOrDefault(x=>x.Name== "Stirrup/Tie - 135 deg");
+            RebarHookType rebarHookType = new FilteredElementCollector(doc).OfClass(typeof(RebarHookType)).Cast<RebarHookType>()
+                .FirstOrDefault(x => x.Name == "Stirrup/Tie - 135 deg");
 
             XYZ pStartBeam = lineBeam.GetEndPoint(0);
             XYZ normalBeamHorizontal = directionBeam.CrossProduct(XYZ.BasisZ).Normalize();
-            XYZ normalBeamVertical = normalBeamHorizontal.CrossProduct(directionBeam).Normalize(); 
+            XYZ normalBeamVertical = normalBeamHorizontal.CrossProduct(directionBeam).Normalize();
             RebarCoverType rebarCoverType = doc.GetElement(beam.get_Parameter(BuiltInParameter.CLEAR_COVER_OTHER).AsElementId()) as RebarCoverType;
             double rebarCover = rebarCoverType.CoverDistance;
             double bRebar = b - 2 * rebarCover - stirrupType.BarModelDiameter;
             double offsetToTop = rebarCover + stirrupType.BarNominalDiameter / 2;
-            double offsetToBot= h-(rebarCover+ stirrupType.BarNominalDiameter/2);
+            double offsetToBot = h - (rebarCover + stirrupType.BarNominalDiameter / 2);
 
             Transform transfomLeft = Transform.CreateTranslation(normalBeamHorizontal * bRebar / 2);
             Transform transformRight = Transform.CreateTranslation(-normalBeamHorizontal * bRebar / 2);
             Transform transformTop = Transform.CreateTranslation(-normalBeamVertical * offsetToTop);
-            Transform transformBot= Transform.CreateTranslation(-normalBeamVertical * offsetToBot);
+            Transform transformBot = Transform.CreateTranslation(-normalBeamVertical * offsetToBot);
+
 
             Transform moveToStartRebar = Transform.CreateTranslation(directionBeam * 100 / 304.8);
             pStartBeam = moveToStartRebar.OfPoint(pStartBeam);
             XYZ leftTop = pStartBeam;
-            leftTop= transfomLeft.OfPoint(leftTop);
-            leftTop= transformTop.OfPoint(leftTop);
+            leftTop = transfomLeft.OfPoint(leftTop);
+            leftTop = transformTop.OfPoint(leftTop);
             XYZ rightTop = pStartBeam;
-            rightTop= transformRight.OfPoint(rightTop);
-            rightTop= transformTop.OfPoint(rightTop);
+            rightTop = transformRight.OfPoint(rightTop);
+            rightTop = transformTop.OfPoint(rightTop);
             XYZ rightBot = pStartBeam;
-            rightBot= transformRight.OfPoint(rightBot);
-            rightBot= transformBot.OfPoint(rightBot);
+            rightBot = transformRight.OfPoint(rightBot);
+            rightBot = transformBot.OfPoint(rightBot);
             XYZ leftBot = pStartBeam;
-            leftBot= transfomLeft.OfPoint(leftBot);
-            leftBot= transformBot.OfPoint(leftBot); 
+            leftBot = transfomLeft.OfPoint(leftBot);
+            leftBot = transformBot.OfPoint(leftBot);
 
-            Line line1= Line.CreateBound(leftTop, rightTop);
-            Line line2 = Line.CreateBound(rightTop, rightBot); Line line3 = Line.CreateBound(rightBot, leftBot);
-            Line line4= Line.CreateBound(leftBot, leftTop);
-            IList<Curve> listCurve= new List<Curve>() { line1, line2, line3, line4 };
+            Line line1 = Line.CreateBound(leftTop, rightTop);
+            Line line2 = Line.CreateBound(rightTop, rightBot);
+            Line line3 = Line.CreateBound(rightBot, leftBot);
+            Line line4 = Line.CreateBound(leftBot, leftTop);
+            IList<Curve> listCurve = new List<Curve>() { line1, line2, line3, line4 };
 
             Rebar rebar = null;
-            using (Transaction t= new Transaction(doc, "CreateRebarCurve"))
+            using (Transaction t = new Transaction(doc, "CreateRebarCurve"))
             {
                 t.Start();
-                rebar= Rebar.CreateFromCurves(doc, RebarStyle.StirrupTie, stirrupType, rebarHookType, rebarHookType, beam, directionBeam, listCurve,
-                    RebarHookOrientation.Right, RebarHookOrientation.Right, true, true);
+#if REVIT2025
+                rebar = Rebar.CreateFromCurves(doc, RebarStyle.StirrupTie, stirrupType, rebarHookType, rebarHookType, beam, directionBeam, listCurve,
+                                               RebarHookOrientation.Right, RebarHookOrientation.Right, true, true);
+#elif REVIT2026
+            rebar = Rebar.CreateFromCurves(doc, RebarStyle.StirrupTie, stirrupType, rebarHookType, rebarHookType, beam, directionBeam, listCurve,
+                                               RebarHookOrientation.Right, RebarHookOrientation.Right, true, true);
+#endif
                 t.Commit();
             }
-            using(Transaction t2= new Transaction(doc, "SetLayout"))
+            using (Transaction t2 = new Transaction(doc, "SetLayout"))
             {
                 t2.Start();
-                RebarShapeDrivenAccessor drivenAccessor= rebar.GetShapeDrivenAccessor();
+                RebarShapeDrivenAccessor drivenAccessor = rebar.GetShapeDrivenAccessor();
                 drivenAccessor.SetLayoutAsMaximumSpacing(200 / 304.8, lineBeam.Length, true, false, false);
                 t2.Commit();
             }
@@ -86,11 +93,11 @@ namespace RevitApiOnline.RebarBeam
             }
 
             // thep chu
-            RebarBarType typeRebarMain= new FilteredElementCollector(doc).OfClass(typeof(RebarBarType)).Cast<RebarBarType>()
+            RebarBarType typeRebarMain = new FilteredElementCollector(doc).OfClass(typeof(RebarBarType)).Cast<RebarBarType>()
                 .FirstOrDefault(x => x.Name == "22M");
             XYZ sBeam = lineBeam.GetEndPoint(0);
             Transform toStartMain1 = Transform.CreateTranslation(directionBeam * 50 / 304.8);
-            Transform toTopMainBeam = Transform.CreateTranslation(-normalBeamVertical * (offsetToTop+ stirrupType.BarModelDiameter/2 + typeRebarMain.BarModelDiameter / 2));
+            Transform toTopMainBeam = Transform.CreateTranslation(-normalBeamVertical * (offsetToTop + stirrupType.BarModelDiameter / 2 + typeRebarMain.BarModelDiameter / 2));
             XYZ sRebarMain = toStartMain1.OfPoint(sBeam);
             sRebarMain = toTopMainBeam.OfPoint(sRebarMain);
 
@@ -129,7 +136,7 @@ namespace RevitApiOnline.RebarBeam
             {
                 t2.Start();
                 RebarShapeDrivenAccessor drivenAccessor = rebarMain.GetShapeDrivenAccessor();
-                drivenAccessor.SetLayoutAsFixedNumber(4, lengthArrayMain,true,true,true);
+                drivenAccessor.SetLayoutAsFixedNumber(4, lengthArrayMain, true, true, true);
                 t2.Commit();
             }
 
